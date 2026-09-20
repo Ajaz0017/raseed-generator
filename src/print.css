@@ -1,0 +1,329 @@
+@media print {
+  .no-print {
+    display: none !important;
+  }
+
+  .print-only {
+    display: block !important;
+  }
+
+  body {
+    background: #fff;
+  }
+
+  @page {
+    margin: 10mm;
+  }
+
+  * {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+    color-adjust: exact !important;
+  }
+}
+
+:root {
+  --brand-maroon: #7a1332;
+  --brand-maroon-dark: #5c0e26;
+  --brand-maroon-soft: #fbeef2;
+  --brand-gold: #b8860b;
+  --brand-gold-soft: #f6ecd9;
+}
+
+.bill-print {
+  position: relative;
+  width: 100%;
+  max-width: 800px;
+  margin: 0 auto;
+  font-family: Georgia, 'Times New Roman', serif;
+  color: #2a2a2a;
+  border: 3px double var(--brand-maroon);
+  border-radius: 10px;
+  overflow: hidden;
+  background: #fffdfa;
+}
+
+.bill-watermark {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 60%;
+  height: auto;
+  transform: translate(-50%, -50%) rotate(-6deg);
+  filter: grayscale(100%);
+  opacity: 0.1;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.bill-content {
+  position: relative;
+  z-index: 1;
+  padding-bottom: 20px;
+}
+
+/* Brand band */
+.brand-band {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  background: linear-gradient(135deg, var(--brand-maroon), var(--brand-maroon-dark));
+  padding: 14px 24px 12px;
+}
+
+.letterhead-text {
+  text-align: center;
+}
+
+.brand-name {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: 36px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  color: #fff;
+  margin: 0 20px;
+}
+
+.brand-tagline {
+  margin: 2px 0 0;
+  font-size: 12px;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--brand-gold-soft);
+}
+
+.motif-badge {
+  width: 100px;
+  height: 100px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  background: radial-gradient(circle, #fffaf0 55%, var(--brand-gold-soft) 100%);
+  border: 2px solid var(--brand-gold);
+  box-shadow: 0 0 0 3px var(--brand-maroon-dark) inset, 0 2px 4px rgba(0, 0, 0, 0.25);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 25px;
+}
+
+.letterhead-motif {
+  width: 90px;
+  height: 90px;
+  filter: brightness(3) invert(1);
+}
+
+.letterhead-motif-right {
+  transform: scaleX(-1);
+}
+
+/* Decorative zigzag trim */
+.deco-trim {
+  height: 8px;
+  background-image: linear-gradient(135deg, var(--brand-gold) 25%, transparent 25%),
+    linear-gradient(225deg, var(--brand-gold) 25%, transparent 25%),
+    linear-gradient(45deg, var(--brand-gold) 25%, transparent 25%),
+    linear-gradient(315deg, var(--brand-gold) 25%, transparent 25%);
+  background-position: 0 0, 0 0, -4px 0, -4px 0;
+  background-size: 8px 8px;
+  background-repeat: repeat-x;
+  background-color: var(--brand-maroon-dark);
+}
+
+/* Sub-bar */
+.brand-subbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 8px 24px;
+  background: var(--brand-gold-soft);
+  font-size: 11.5px;
+  color: #6b5c3f;
+  border-bottom: 1px solid var(--brand-gold);
+}
+
+.brand-date {
+  font-weight: 700;
+  color: var(--brand-maroon);
+  white-space: nowrap;
+}
+
+/* Billed to panel */
+.billed-to-panel {
+  margin: 18px 24px 16px;
+  border: 1px solid #e3d3b8;
+  border-radius: 8px;
+  background: #fffefb;
+  padding: 12px 16px;
+}
+
+.billed-to-title {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.6px;
+  text-transform: uppercase;
+  color: var(--brand-maroon);
+  background: var(--brand-maroon-soft);
+  padding: 2px 10px;
+  border-radius: 999px;
+  margin-bottom: 8px;
+}
+
+.bill-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  font-size: 14px;
+}
+
+.bill-meta > div {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+
+.bill-meta span:first-child {
+  width: 70px;
+  font-weight: 600;
+  letter-spacing: 1px;
+  color: var(--brand-maroon);
+}
+
+.bill-meta .line {
+  flex: 1;
+  border-bottom: 1px dashed #c9a9b2;
+}
+
+.bill-meta .value {
+  flex: 1;
+  font-weight: 600;
+  color: #2a2a2a;
+  text-transform: capitalize;
+}
+
+/* Table */
+.bill-table {
+  width: calc(100% - 48px);
+  margin: 0 24px;
+  border-collapse: collapse;
+}
+
+.bill-table th,
+.bill-table td {
+  border: 1px solid var(--brand-gold);
+  padding: 7px 8px;
+  font-size: 13px;
+  text-align: center;
+  text-transform: capitalize;
+}
+
+.bill-table th {
+  background: var(--brand-maroon);
+  color: #fff;
+  font-weight: 700;
+  letter-spacing: 0.3px;
+}
+
+.bill-table td:nth-child(2) {
+  text-align: left;
+}
+
+.bill-table tbody tr:nth-child(even) {
+  background: var(--brand-gold-soft);
+}
+
+.blank-row td {
+  height: 24px;
+}
+
+/* Summary row */
+.summary-row {
+  display: flex;
+  align-items: stretch;
+  gap: 14px;
+  margin: 10px 24px 0;
+}
+
+.bill-words {
+  flex: 1;
+  border: 1px solid var(--brand-gold);
+  border-radius: 6px;
+  padding: 10px 12px;
+  font-size: 13px;
+  background: #fffefb;
+  display: flex;
+  align-items: center;
+}
+
+.total-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-width: 140px;
+  background: var(--brand-maroon);
+  color: #fff;
+  border-radius: 6px;
+  padding: 8px 16px;
+}
+
+.total-box span {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  opacity: 0.85;
+}
+
+.total-box strong {
+  font-size: 20px;
+  font-family: '', Georgia, serif;
+}
+
+.bill-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  margin: 22px 24px 0;
+  font-size: 14px;
+}
+
+.signature-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.signature-name {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-style: italic;
+  font-size: 15px;
+  color: var(--brand-maroon);
+  margin-bottom: 2px;
+}
+
+.signature-dots {
+  letter-spacing: 1px;
+}
+
+.signature-caption {
+  font-size: 12px;
+  color: #6b5c5f;
+  margin-top: 2px;
+}
+
+.bill-thanks {
+  text-align: center;
+  margin: 0;
+  padding: 10px 0 0;
+  font-family: 'Playfair Display', Georgia, serif;
+  font-style: italic;
+  color: var(--brand-maroon);
+  font-size: 14px;
+}
+
+.item-width {
+  min-width: 180px;
+}
