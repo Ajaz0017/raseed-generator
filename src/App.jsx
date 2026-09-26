@@ -6,10 +6,11 @@ import ItemsList from './components/ItemsList';
 import BillPrint from './components/BillPrint';
 import ConfirmDialog from './components/ConfirmDialog';
 import BottomSheet from './components/BottomSheet';
+import Toast from './components/Toast';
 import { useItems } from './hooks/useItems';
 import { useCustomer } from './hooks/useCustomer';
 import { useMediaQuery } from './hooks/useMediaQuery';
-import { UNLOCK_KEY } from './constants';
+import { BUSINESS, UNLOCK_KEY } from './constants';
 import './index.css';
 import './print.css';
 
@@ -50,9 +51,17 @@ function App() {
     setEditingItem(null);
   }, []);
 
+  const [toast, setToast] = useState(null);
+  const hideToast = useCallback(() => setToast(null), []);
+
+  function showToast(message) {
+    setToast({ id: Date.now(), message });
+  }
+
   function handleAdd(item) {
     addItem(item);
     setSheetOpen(false);
+    showToast(`"${item.item}" added successfully`);
   }
 
   // Swap the tab title only while printing (covers the button and Ctrl+P).
@@ -80,6 +89,7 @@ function App() {
   function handleUpdate(id, updated) {
     updateItem(id, updated);
     setEditingItem(null);
+    showToast(`"${updated.item}" updated successfully`);
   }
 
   function requestDelete(item) {
@@ -136,27 +146,69 @@ function App() {
   return (
     <div className="app">
       <div className="app-screen no-print">
-        <header className="app-header">
-          <h1>Bill Generator</h1>
-          <div className="header-actions">
-            <button
-              type="button"
-              className="btn btn-outline"
-              onClick={requestClearAll}
-              disabled={items.length === 0}
-            >
-              Clear All
-            </button>
-            <button
-              type="button"
-              className="btn btn-primary"
-              onClick={() => window.print()}
-              disabled={items.length === 0}
-            >
-              Print Bill
-            </button>
-          </div>
-        </header>
+        {isMobile ? (
+          <header className="mobile-topbar">
+            <div className="mobile-brand">
+              <span className="mobile-brand-mark" aria-hidden="true">
+                ₹
+              </span>
+              <div className="mobile-brand-text">
+                <h1>Bill Generator</h1>
+                <span>{BUSINESS.name}</span>
+              </div>
+            </div>
+            <div className="mobile-topbar-actions">
+              <button
+                type="button"
+                className="topbar-icon-btn"
+                aria-label="Clear all items"
+                onClick={requestClearAll}
+                disabled={items.length === 0}
+              >
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                  <polyline points="3 6 5 6 21 6" />
+                  <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6" />
+                  <path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2" />
+                </svg>
+              </button>
+              <button
+                type="button"
+                className="topbar-print-btn"
+                onClick={() => window.print()}
+                disabled={items.length === 0}
+              >
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                  <polyline points="6 9 6 2 18 2 18 9" />
+                  <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2" />
+                  <rect x="6" y="14" width="12" height="8" />
+                </svg>
+                Print
+              </button>
+            </div>
+          </header>
+        ) : (
+          <header className="app-header">
+            <h1>Bill Generator</h1>
+            <div className="header-actions">
+              <button
+                type="button"
+                className="btn btn-outline"
+                onClick={requestClearAll}
+                disabled={items.length === 0}
+              >
+                Clear All
+              </button>
+              <button
+                type="button"
+                className="btn btn-primary"
+                onClick={() => window.print()}
+                disabled={items.length === 0}
+              >
+                Print Bill
+              </button>
+            </div>
+          </header>
+        )}
 
         {isMobile ? (
           <>
@@ -200,7 +252,7 @@ function App() {
             <CustomerForm customer={customer} onChange={updateCustomer} onClear={requestClearCustomer} />
 
             <BillForm
-              onAdd={addItem}
+              onAdd={handleAdd}
               onUpdate={handleUpdate}
               editingItem={editingItem}
               onCancelEdit={() => setEditingItem(null)}
@@ -214,6 +266,8 @@ function App() {
       <div className="print-only">
         <BillPrint items={items} customer={customer} />
       </div>
+
+      <Toast toast={toast} onDone={hideToast} />
 
       <ConfirmDialog
         open={pendingAction !== null}
