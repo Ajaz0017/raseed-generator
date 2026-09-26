@@ -1,12 +1,14 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import PinGate from './components/PinGate';
 import CustomerForm from './components/CustomerForm';
 import BillForm from './components/BillForm';
 import ItemsList from './components/ItemsList';
 import BillPrint from './components/BillPrint';
 import ConfirmDialog from './components/ConfirmDialog';
+import BottomSheet from './components/BottomSheet';
 import { useItems } from './hooks/useItems';
 import { useCustomer } from './hooks/useCustomer';
+import { useMediaQuery } from './hooks/useMediaQuery';
 import { UNLOCK_KEY } from './constants';
 import './index.css';
 import './print.css';
@@ -40,6 +42,18 @@ function App() {
   const { customer, updateCustomer, clearCustomer } = useCustomer();
   const [editingItem, setEditingItem] = useState(null);
   const [pendingAction, setPendingAction] = useState(null);
+  const isMobile = useMediaQuery('(max-width: 640px)');
+  const [sheetOpen, setSheetOpen] = useState(false);
+
+  const closeSheet = useCallback(() => {
+    setSheetOpen(false);
+    setEditingItem(null);
+  }, []);
+
+  function handleAdd(item) {
+    addItem(item);
+    setSheetOpen(false);
+  }
 
   // Swap the tab title only while printing (covers the button and Ctrl+P).
   useEffect(() => {
@@ -111,6 +125,10 @@ function App() {
     },
   }[pendingAction?.type] ?? {};
 
+  const totalLabel = items
+    .reduce((sum, it) => sum + (parseFloat(it.amount) || 0), 0)
+    .toLocaleString('en-IN', { maximumFractionDigits: 2 });
+
   if (!unlocked) {
     return <PinGate onUnlock={handleUnlock} />;
   }
@@ -140,16 +158,57 @@ function App() {
           </div>
         </header>
 
-        <CustomerForm customer={customer} onChange={updateCustomer} onClear={requestClearCustomer} />
+        {isMobile ? (
+          <>
+            <CustomerForm
+              customer={customer}
+              onChange={updateCustomer}
+              onClear={requestClearCustomer}
+              collapsible
+            />
 
-        <BillForm
-          onAdd={addItem}
-          onUpdate={handleUpdate}
-          editingItem={editingItem}
-          onCancelEdit={() => setEditingItem(null)}
-        />
+            <div className="items-section-header">
+              <h2>
+                Items :<span className="items-count">{items.length}</span>
+              </h2>
+              {items.length > 0 && <span className="items-total">Total ₹{totalLabel}</span>}
+            </div>
 
-        <ItemsList items={items} onEdit={setEditingItem} onDelete={requestDelete} />
+            <ItemsList items={items} onEdit={setEditingItem} onDelete={requestDelete} />
+
+            <div className="fab-bar">
+              <button type="button" className="btn btn-primary fab" onClick={() => setSheetOpen(true)}>
+                <span aria-hidden="true">+</span> Add Item
+              </button>
+            </div>
+
+            <BottomSheet
+              open={sheetOpen || editingItem !== null}
+              title={editingItem ? 'Edit Item' : 'Add Item'}
+              onClose={closeSheet}
+            >
+              <BillForm
+                onAdd={handleAdd}
+                onUpdate={handleUpdate}
+                editingItem={editingItem}
+                onCancelEdit={closeSheet}
+              />
+            </BottomSheet>
+          </>
+        ) : (
+          <>
+            <CustomerForm customer={customer} onChange={updateCustomer} onClear={requestClearCustomer} />
+
+            <BillForm
+              onAdd={addItem}
+              onUpdate={handleUpdate}
+              editingItem={editingItem}
+              onCancelEdit={() => setEditingItem(null)}
+            />
+
+            <ItemsList items={items} onEdit={setEditingItem} onDelete={requestDelete} />
+          </>
+        )}
       </div>
 
       <div className="print-only">

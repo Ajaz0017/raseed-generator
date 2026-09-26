@@ -525,6 +525,236 @@ body {
   gap: 10px;
 }
 
+/* ---- Mobile-only pieces (rendered only when isMobile) ---- */
+.customer-form.collapsible {
+  padding: 0;
+  margin-bottom: 18px;
+  overflow: hidden;
+}
+
+.customer-form.collapsible .field-grid {
+  padding: 4px 16px 16px;
+  margin-bottom: 0;
+}
+
+.customer-summary {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 16px;
+  background: none;
+  border: 0;
+  font-family: inherit;
+  text-align: left;
+  cursor: pointer;
+  color: var(--color-text);
+}
+
+.customer-summary-text {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.customer-summary-label {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.4px;
+  text-transform: uppercase;
+  color: var(--color-muted);
+}
+
+.customer-summary-name {
+  font-size: 15px;
+  font-weight: 700;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.customer-summary-date {
+  flex-shrink: 0;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 3px 9px;
+  border-radius: 999px;
+  background: var(--color-primary-soft);
+  color: var(--color-primary);
+}
+
+.customer-summary .chevron {
+  flex-shrink: 0;
+  color: var(--color-muted);
+  transition: transform 0.2s ease;
+}
+
+.customer-summary[aria-expanded='true'] .chevron {
+  transform: rotate(180deg);
+}
+
+.customer-collapsible-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.items-section-header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  margin: 0 2px 10px;
+}
+
+.items-section-header h2 {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  font-size: 16px;
+}
+
+.items-count {
+  min-width: 22px;
+  padding: 1px 7px;
+  border-radius: 999px;
+  background: var(--color-primary-soft);
+  color: var(--color-primary);
+  font-size: 12px;
+  font-weight: 700;
+  text-align: center;
+}
+
+.items-total {
+  font-size: 14px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.fab-bar {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 50;
+  padding: 12px 14px calc(12px + env(safe-area-inset-bottom));
+  background: linear-gradient(to top, var(--color-bg) 60%, transparent);
+  pointer-events: none;
+}
+
+.fab {
+  width: 100%;
+  padding: 14px 18px;
+  font-size: 15px;
+  box-shadow: 0 8px 20px rgba(79, 70, 229, 0.35);
+  pointer-events: auto;
+}
+
+.fab span {
+  font-size: 20px;
+  line-height: 1;
+}
+
+.sheet-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 90;
+  display: flex;
+  align-items: flex-end;
+  background: rgba(15, 17, 26, 0.5);
+  animation: sheet-fade 0.2s ease;
+}
+
+.sheet {
+  width: 100%;
+  max-height: 92vh;
+  display: flex;
+  flex-direction: column;
+  background: var(--color-surface);
+  border-radius: 18px 18px 0 0;
+  box-shadow: var(--shadow-elevated);
+  animation: sheet-up 0.25s ease;
+}
+
+.sheet-handle {
+  width: 40px;
+  height: 4px;
+  margin: 8px auto 0;
+  border-radius: 999px;
+  background: var(--color-border);
+}
+
+.sheet-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 16px 6px;
+}
+
+.sheet-header h2 {
+  margin: 0;
+  font-size: 17px;
+}
+
+.sheet-body {
+  overflow-y: auto;
+  padding: 6px 16px calc(16px + env(safe-area-inset-bottom));
+}
+
+.sheet .bill-form {
+  padding: 0;
+  margin: 0;
+  border: 0;
+  box-shadow: none;
+}
+
+/* Compact two-column form so the Add button needs little or no scrolling. */
+.sheet .field-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.sheet .field-grid > .field:first-child,
+.sheet .field-grid > .field:last-child {
+  grid-column: 1 / -1;
+}
+
+.sheet .form-actions {
+  position: sticky;
+  bottom: calc(-16px - env(safe-area-inset-bottom));
+  flex-direction: row;
+  margin: 0 -16px;
+  padding: 12px 16px calc(16px + env(safe-area-inset-bottom));
+  background: var(--color-surface);
+  border-top: 1px solid var(--color-border);
+}
+
+.sheet .form-actions .btn {
+  flex: 1;
+}
+
+@keyframes sheet-up {
+  from {
+    transform: translateY(100%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sheet,
+  .sheet-overlay {
+    animation: none;
+  }
+}
+
+@keyframes sheet-fade {
+  from {
+    opacity: 0;
+  }
+}
+
 /* Tablet & mobile: rows become cards */
 @media (max-width: 860px) {
   .items-header {
@@ -601,7 +831,7 @@ body {
 /* Mobile responsive */
 @media (max-width: 640px) {
   .app-screen {
-    padding: 16px 14px 56px;
+    padding: 16px 14px 96px; /* room for the fixed Add Item bar */
   }
 
   .app-header h1 {
