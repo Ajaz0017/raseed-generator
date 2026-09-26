@@ -1,10 +1,19 @@
 import { useCallback, useEffect, useState } from 'react';
 import { STORAGE_KEY } from '../constants';
+import { calcAmount } from '../utils/calcAmount';
+
+// Items saved before the price → rate rename still carry `price`.
+function migrateItem(it) {
+  if (it.rate !== undefined) return it;
+  const { price, ...rest } = it;
+  const migrated = { ...rest, rate: price ?? '' };
+  return { ...migrated, amount: calcAmount(migrated) };
+}
 
 function loadItems() {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
-    return raw ? JSON.parse(raw) : [];
+    return raw ? JSON.parse(raw).map(migrateItem) : [];
   } catch {
     return [];
   }

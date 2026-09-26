@@ -1,3 +1,5 @@
+import { formatGraph } from '../utils/formatGraph';
+
 function EditIcon() {
   return (
     <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -19,6 +21,13 @@ function DeleteIcon() {
   );
 }
 
+function badgeVariant(type) {
+  const hand = type.includes('Handloom');
+  const power = type.includes('Powerloom');
+  if (hand && power) return 'mixed';
+  return hand ? 'handloom' : 'powerloom';
+}
+
 export default function ItemsList({ items, onEdit, onDelete }) {
   if (items.length === 0) {
     return (
@@ -33,12 +42,14 @@ export default function ItemsList({ items, onEdit, onDelete }) {
     <div className="items-list">
       <div className="items-header">
         <span className="area-name">Item</span>
-        <span className="area-type">Item Type</span>
+        <span className="area-type">Weave Type</span>
         <span className="area-meta">
           <span>Chaok</span>
           <span>Khewa</span>
+          <span>Graph</span>
+          <span>Rate</span>
         </span>
-        <span className="area-price">Price</span>
+        <span className="area-price">Amount</span>
         <span className="area-actions">Actions</span>
       </div>
 
@@ -47,11 +58,12 @@ export default function ItemsList({ items, onEdit, onDelete }) {
           <div className="item-row-name area-name">
             <span className="item-index">#{idx + 1}</span>
             <span className="item-name">{it.item}</span>
+            {it.itemPart && <span className="item-part">{it.itemPart}</span>}
           </div>
 
           <div className="item-row-type area-type">
             {it.itemType && (
-              <span className={`type-badge ${it.itemType.toLowerCase()}`}>{it.itemType}</span>
+              <span className={`type-badge ${badgeVariant(it.itemType)}`}>{it.itemType}</span>
             )}
           </div>
 
@@ -62,10 +74,16 @@ export default function ItemsList({ items, onEdit, onDelete }) {
             <div className="item-row-value" data-label="Khewa">
               {it.khewa || '—'}
             </div>
+            <div className="item-row-value" data-label="Graph">
+              {formatGraph(it) || '—'}
+            </div>
+            <div className="item-row-value" data-label="Rate">
+              {it.rate || '—'}
+            </div>
           </div>
 
-          <div className="item-row-value item-row-price area-price" data-label="Price">
-            ₹{it.price}
+          <div className="item-row-value item-row-price area-price" data-label="Amount">
+            ₹{it.amount || 0}
           </div>
 
           <div className="item-row-actions area-actions">

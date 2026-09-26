@@ -270,6 +270,24 @@ body {
   box-shadow: 0 0 0 3px var(--color-primary-soft);
 }
 
+.graph-inputs {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.graph-inputs input {
+  flex: 1;
+  min-width: 0;
+  text-align: center;
+}
+
+.graph-inputs span {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-muted);
+}
+
 .form-actions {
   display: flex;
   gap: 10px;
@@ -398,6 +416,12 @@ body {
   text-transform: capitalize;
 }
 
+.item-part {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--color-muted);
+}
+
 .type-badge {
   font-size: 11px;
   font-weight: 600;
@@ -415,6 +439,11 @@ body {
 .type-badge.powerloom {
   background: #e0f2fe;
   color: #0369a1;
+}
+
+.type-badge.mixed {
+  background: #fef3c7;
+  color: #b45309;
 }
 
 .item-row-value {

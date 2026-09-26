@@ -12,6 +12,7 @@
   }
 
   @page {
+    size: A4 portrait;
     margin: 10mm;
   }
 
@@ -77,20 +78,55 @@
 }
 
 .brand-name {
-  font-family: 'Playfair Display', Georgia, serif;
-  font-size: 36px;
-  font-weight: 700;
-  letter-spacing: 1px;
-  color: #fff;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
   margin: 0 20px;
+  line-height: 1;
+}
+
+.brand-name-script {
+  font-family: 'Great Vibes', 'Playfair Display', cursive;
+  font-size: 54px;
+  font-weight: 400;
+  color: #fff;
+  text-shadow: 0 2px 6px rgba(0, 0, 0, 0.35);
+}
+
+.brand-name-caps {
+  margin-top: -2px;
+  padding-left: 9px; /* balances trailing letter-spacing */
+  font-family: 'Montserrat', 'Segoe UI', sans-serif;
+  font-size: 17px;
+  font-weight: 700;
+  letter-spacing: 9px;
+  text-transform: uppercase;
+  background: linear-gradient(90deg, #d9a93b, #f7e3a1 50%, #d9a93b);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
 }
 
 .brand-tagline {
-  margin: 2px 0 0;
-  font-size: 12px;
-  letter-spacing: 1.5px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin: 8px 0 0;
+  font-family: 'Montserrat', 'Segoe UI', sans-serif;
+  font-size: 10.5px;
+  font-weight: 500;
+  letter-spacing: 1.8px;
   text-transform: uppercase;
   color: var(--brand-gold-soft);
+}
+
+.brand-tagline::before,
+.brand-tagline::after {
+  content: '';
+  width: 28px;
+  height: 1px;
+  background: var(--brand-gold);
 }
 
 .motif-badge {
@@ -110,7 +146,7 @@
 .letterhead-motif {
   width: 90px;
   height: 90px;
-  filter: brightness(3) invert(1);
+  object-fit: contain;
 }
 
 .letterhead-motif-right {
@@ -141,6 +177,19 @@
   font-size: 11.5px;
   color: #6b5c3f;
   border-bottom: 1px solid var(--brand-gold);
+}
+
+.whatsapp {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  vertical-align: middle;
+}
+
+.whatsapp-icon {
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
 }
 
 .brand-date {
@@ -204,26 +253,40 @@
 }
 
 /* Table */
+/* Fixed layout + single-line cells: every row has the same height no matter
+   what text it holds, so 15 rows always fit on one A4 page. */
 .bill-table {
   width: calc(100% - 48px);
   margin: 0 24px;
   border-collapse: collapse;
+  table-layout: fixed;
 }
 
 .bill-table th,
 .bill-table td {
   border: 1px solid var(--brand-gold);
-  padding: 7px 8px;
+  padding: 7px 5px;
   font-size: 13px;
   text-align: center;
   text-transform: capitalize;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .bill-table th {
   background: var(--brand-maroon);
   color: #fff;
+  font-size: 11.5px;
   font-weight: 700;
-  letter-spacing: 0.3px;
+  letter-spacing: 0.2px;
+}
+
+/* Keep "Pick n Pick" as typed (capitalize would turn it into "Pick N Pick"). */
+.bill-table td.weave-cell {
+  font-size: 11px;
+  letter-spacing: -0.1px;
+  text-transform: none;
 }
 
 .bill-table td:nth-child(2) {
@@ -322,8 +385,4 @@
   font-style: italic;
   color: var(--brand-maroon);
   font-size: 14px;
-}
-
-.item-width {
-  min-width: 180px;
 }
