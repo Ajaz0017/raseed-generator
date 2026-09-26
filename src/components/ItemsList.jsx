@@ -28,6 +28,11 @@ function badgeVariant(type) {
   return hand ? 'handloom' : 'powerloom';
 }
 
+function formatAmount(amount) {
+  const n = parseFloat(amount);
+  return Number.isNaN(n) ? '0' : n.toLocaleString('en-IN', { maximumFractionDigits: 2 });
+}
+
 export default function ItemsList({ items, onEdit, onDelete }) {
   if (items.length === 0) {
     return (
@@ -56,14 +61,20 @@ export default function ItemsList({ items, onEdit, onDelete }) {
       {items.map((it, idx) => (
         <div className="item-row" key={it.id}>
           <div className="item-row-name area-name">
-            <span className="item-index">#{idx + 1}</span>
-            <span className="item-name">{it.item}</span>
-            {it.itemPart && <span className="item-part">{it.itemPart}</span>}
+            <span className="item-index">{idx + 1}</span>
+            <div className="item-title">
+              <span className="item-name" title={it.item}>
+                {it.item}
+              </span>
+              {it.itemPart && <span className="item-part">{it.itemPart}</span>}
+            </div>
           </div>
 
           <div className="item-row-type area-type">
-            {it.itemType && (
+            {it.itemType ? (
               <span className={`type-badge ${badgeVariant(it.itemType)}`}>{it.itemType}</span>
+            ) : (
+              <span className="muted-dash">—</span>
             )}
           </div>
 
@@ -83,7 +94,7 @@ export default function ItemsList({ items, onEdit, onDelete }) {
           </div>
 
           <div className="item-row-value item-row-price area-price" data-label="Amount">
-            ₹{it.amount || 0}
+            ₹{formatAmount(it.amount)}
           </div>
 
           <div className="item-row-actions area-actions">

@@ -44,7 +44,7 @@ export default function BillForm({ onAdd, onUpdate, editingItem, onCancelEdit })
         <div className="field">
           <label htmlFor="f-part">Item Type</label>
           <select id="f-part" value={form.itemPart ?? ''} onChange={handleChange('itemPart')}>
-            <option value="">Select type (optional)</option>
+            <option value="">Select</option>
             {ITEM_PARTS.map((part) => (
               <option key={part} value={part}>
                 {part}
@@ -101,7 +101,7 @@ export default function BillForm({ onAdd, onUpdate, editingItem, onCancelEdit })
           <label htmlFor="f-type">Weave Type</label>
           <select id="f-type" value={form.itemType} onChange={handleChange('itemType')}>
             <option value="" disabled>
-              Select type
+              Select
             </option>
             {ITEM_TYPES.map((type) => (
               <option key={type} value={type}>
