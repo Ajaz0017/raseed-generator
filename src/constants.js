@@ -1,6 +1,7 @@
 export const PIN = '1234';
 export const STORAGE_KEY = 'bill_items';
 export const UNLOCK_KEY = 'bill_generator_unlocked';
+export const SIGNATURE_KEY = 'bill_show_signature';
 
 export const ITEM_TYPES = [
   'Handloom',

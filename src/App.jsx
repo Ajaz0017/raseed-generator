@@ -7,9 +7,11 @@ import BillPrint from './components/BillPrint';
 import ConfirmDialog from './components/ConfirmDialog';
 import BottomSheet from './components/BottomSheet';
 import Toast from './components/Toast';
+import SignatureToggle from './components/SignatureToggle';
 import { useItems } from './hooks/useItems';
 import { useCustomer } from './hooks/useCustomer';
 import { useMediaQuery } from './hooks/useMediaQuery';
+import { useSignature } from './hooks/useSignature';
 import { BUSINESS, UNLOCK_KEY } from './constants';
 import './index.css';
 import './print.css';
@@ -41,6 +43,7 @@ function App() {
   const [unlocked, setUnlocked] = useState(() => sessionStorage.getItem(UNLOCK_KEY) === 'true');
   const { items, addItem, updateItem, deleteItem, clearAll } = useItems();
   const { customer, updateCustomer, clearCustomer } = useCustomer();
+  const { showSignature, setShowSignature } = useSignature();
   const [editingItem, setEditingItem] = useState(null);
   const [pendingAction, setPendingAction] = useState(null);
   const isMobile = useMediaQuery('(max-width: 640px)');
@@ -190,6 +193,7 @@ function App() {
           <header className="app-header">
             <h1>Bill Generator</h1>
             <div className="header-actions">
+              <SignatureToggle checked={showSignature} onChange={setShowSignature} />
               <button
                 type="button"
                 className="btn btn-outline"
@@ -217,6 +221,12 @@ function App() {
               onChange={updateCustomer}
               onClear={requestClearCustomer}
               collapsible
+            />
+
+            <SignatureToggle
+              className="signature-toggle-card"
+              checked={showSignature}
+              onChange={setShowSignature}
             />
 
             <div className="items-section-header">
@@ -264,7 +274,7 @@ function App() {
       </div>
 
       <div className="print-only">
-        <BillPrint items={items} customer={customer} />
+        <BillPrint items={items} customer={customer} showSignature={showSignature} />
       </div>
 
       <Toast toast={toast} onDone={hideToast} />

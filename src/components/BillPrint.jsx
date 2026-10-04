@@ -3,11 +3,44 @@ import { formatGraph } from '../utils/formatGraph';
 import { BUSINESS } from '../constants';
 import headerSaree from '../assets/header-saree.webp';
 import headerJacquard from '../assets/header-jacquard.jpg';
-import watermarkFlower from '../assets/watermark-flower.png';
+import watermarkKairy from '../assets/paisley-motif.png';
 import upiQr from '../assets/upi-qr.png';
+
+// Optional asset: drop the owner's signature at src/assets/signature.png.
+// Globbing (instead of a static import) keeps the build working without it.
+const signatureImg = Object.values(
+  import.meta.glob('../assets/signature.png', { eager: true, import: 'default' })
+)[0];
 
 const MIN_ROWS = 15;
 const UPI_APPS = ['Google Pay', 'PhonePe', 'Paytm', 'BHIM'];
+
+// `optional` columns are dropped from the bill when no item has a value for them.
+// `width` values are relative weights, normalised to percentages at render time.
+const COLUMNS = [
+  { key: 'sno', label: 'S.No', width: 6, render: (_, idx) => idx + 1 },
+  { key: 'item', label: 'Item', width: 21, render: (it) => it.item },
+  { key: 'itemPart', label: 'Item Type', width: 10, optional: true, render: (it) => it.itemPart },
+  { key: 'chaok', label: 'Chaok', width: 8, render: (it) => it.chaok },
+  { key: 'khewa', label: 'Khewa', width: 8, render: (it) => it.khewa },
+  {
+    key: 'graph',
+    label: 'Graph',
+    width: 9,
+    optional: true,
+    style: { textTransform: 'lowercase' },
+    render: (it) => formatGraph(it),
+  },
+  { key: 'rate', label: 'Rate', width: 7, render: (it) => it.rate },
+  { key: 'weave', label: 'Weave Type', width: 20, className: 'weave-cell', render: (it) => it.itemType },
+  {
+    key: 'amount',
+    label: 'Amount',
+    width: 11,
+    className: 'amount-cell',
+    render: (it) => formatMoney(it.amount),
+  },
+];
 
 function formatDate(dateString) {
   const date = dateString ? new Date(`${dateString}T00:00:00`) : new Date();
@@ -64,7 +97,7 @@ function PhoneIcon() {
   );
 }
 
-export default function BillPrint({ items, customer }) {
+export default function BillPrint({ items, customer, showSignature }) {
   const [brandFirst, ...brandRestWords] = BUSINESS.name.split(' ');
   const brandRest = brandRestWords.join(' ');
   const total = items.reduce((sum, it) => sum + (parseFloat(it.amount) || 0), 0);
@@ -72,10 +105,14 @@ export default function BillPrint({ items, customer }) {
   const blankRows = Math.max(0, MIN_ROWS - items.length);
   const billDate = formatDate(customer?.date);
   const totalLabel = formatMoney(total, 2);
+  const columns = COLUMNS.filter(
+    (col) => !col.optional || items.some((it, idx) => String(col.render(it, idx) ?? '').trim())
+  );
+  const totalWidth = columns.reduce((sum, col) => sum + col.width, 0);
 
   return (
     <div className="bill-print">
-      <img className="bill-watermark" src={watermarkFlower} alt="" aria-hidden="true" />
+      <img className="bill-watermark" src={watermarkKairy} alt="" aria-hidden="true" />
 
       <div className="bill-content">
         {/* Letterhead: brand + contacts on the left, slogan panel on the right */}
@@ -148,54 +185,32 @@ export default function BillPrint({ items, customer }) {
 
         <table className="bill-table">
           <colgroup>
-            <col style={{ width: '6%' }} />
-            <col style={{ width: '21%' }} />
-            <col style={{ width: '10%' }} />
-            <col style={{ width: '8%' }} />
-            <col style={{ width: '8%' }} />
-            <col style={{ width: '9%' }} />
-            <col style={{ width: '7%' }} />
-            <col style={{ width: '20%' }} />
-            <col style={{ width: '11%' }} />
+            {columns.map((col) => (
+              <col key={col.key} style={{ width: `${(col.width / totalWidth) * 100}%` }} />
+            ))}
           </colgroup>
           <thead>
             <tr>
-              <th>S.No</th>
-              <th>Item</th>
-              <th>Item Type</th>
-              <th>Chaok</th>
-              <th>Khewa</th>
-              <th>Graph</th>
-              <th>Rate</th>
-              <th>Weave Type</th>
-              <th>Amount</th>
+              {columns.map((col) => (
+                <th key={col.key}>{col.label}</th>
+              ))}
             </tr>
           </thead>
           <tbody>
             {items.map((it, idx) => (
               <tr key={it.id}>
-                <td>{idx + 1}</td>
-                <td title={it.item}>{it.item}</td>
-                <td>{it.itemPart}</td>
-                <td>{it.chaok}</td>
-                <td>{it.khewa}</td>
-                <td style={{ textTransform: 'lowercase' }}>{formatGraph(it)}</td>
-                <td>{it.rate}</td>
-                <td className="weave-cell">{it.itemType}</td>
-                <td className="amount-cell">{formatMoney(it.amount)}</td>
+                {columns.map((col) => (
+                  <td key={col.key} className={col.className} style={col.style}>
+                    {col.render(it, idx)}
+                  </td>
+                ))}
               </tr>
             ))}
             {Array.from({ length: blankRows }).map((_, i) => (
               <tr key={`blank-${i}`} className="blank-row">
-                <td>{i + items.length + 1}</td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
+                {columns.map((col, c) => (
+                  <td key={col.key}>{c === 0 ? i + items.length + 1 : null}</td>
+                ))}
               </tr>
             ))}
           </tbody>
@@ -249,6 +264,9 @@ export default function BillPrint({ items, customer }) {
           </div>
 
           <div className="signature-box">
+            {showSignature && signatureImg && (
+              <img className="signature-img" src={signatureImg} alt="Signature" />
+            )}
             <span className="signature-line" />
             <span className="signature-caption">Authorised Signature</span>
           </div>
