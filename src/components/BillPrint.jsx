@@ -4,7 +4,11 @@ import { BUSINESS } from '../constants';
 import headerSaree from '../assets/header-saree.webp';
 import headerJacquard from '../assets/header-jacquard.jpg';
 import watermarkKairy from '../assets/paisley-motif.png';
-import upiQr from '../assets/upi-qr.png';
+import { QRCodeSVG } from 'qrcode.react';
+import googlePayLogo from '../assets/pay-apps/google-pay.svg';
+import phonePeLogo from '../assets/pay-apps/phonepe.svg';
+import paytmLogo from '../assets/pay-apps/paytm.svg';
+import bhimLogo from '../assets/pay-apps/bhim.svg';
 
 // Optional asset: drop the owner's signature at src/assets/signature.png.
 // Globbing (instead of a static import) keeps the build working without it.
@@ -13,7 +17,12 @@ const signatureImg = Object.values(
 )[0];
 
 const MIN_ROWS = 15;
-const UPI_APPS = ['Google Pay', 'PhonePe', 'Paytm', 'BHIM'];
+const UPI_APPS = [
+  { name: 'Google Pay', logo: googlePayLogo },
+  { name: 'PhonePe', logo: phonePeLogo },
+  { name: 'Paytm', logo: paytmLogo },
+  { name: 'BHIM', logo: bhimLogo },
+];
 
 // `optional` columns are dropped from the bill when no item has a value for them.
 // `width` values are relative weights, normalised to percentages at render time.
@@ -41,6 +50,19 @@ const COLUMNS = [
     render: (it) => formatMoney(it.amount),
   },
 ];
+
+// UPI deep link with the bill amount pre-filled, so the payer's app opens
+// with the amount already entered after scanning.
+function upiPayLink(amount, note) {
+  const params = new URLSearchParams({
+    pa: BUSINESS.upiId,
+    pn: BUSINESS.upiName,
+    cu: 'INR',
+  });
+  if (amount > 0) params.set('am', amount.toFixed(2));
+  if (note) params.set('tn', note);
+  return `upi://pay?${params.toString()}`;
+}
 
 function formatDate(dateString) {
   const date = dateString ? new Date(`${dateString}T00:00:00`) : new Date();
@@ -105,6 +127,7 @@ export default function BillPrint({ items, customer, showSignature }) {
   const blankRows = Math.max(0, MIN_ROWS - items.length);
   const billDate = formatDate(customer?.date);
   const totalLabel = formatMoney(total, 2);
+  const upiLink = upiPayLink(total, customer?.name ? `Bill - ${customer.name}` : 'Bill payment');
   const columns = COLUMNS.filter(
     (col) => !col.optional || items.some((it, idx) => String(col.render(it, idx) ?? '').trim())
   );
@@ -230,7 +253,13 @@ export default function BillPrint({ items, customer, showSignature }) {
         <div className="payment-strip">
           <div className="pay-qr-card">
             <div className="pay-qr">
-              <img src={upiQr} alt={`UPI QR code for ${BUSINESS.upiId}`} />
+              <QRCodeSVG
+                value={upiLink}
+                level="M"
+                marginSize={0}
+                role="img"
+                aria-label={`UPI QR code for ₹${totalLabel} to ${BUSINESS.upiId}`}
+              />
             </div>
             <div className="pay-qr-label">
               <strong>Scan</strong>
@@ -258,7 +287,9 @@ export default function BillPrint({ items, customer, showSignature }) {
             <span className="pay-apps-title">Pay with any UPI app</span>
             <div className="pay-apps-list">
               {UPI_APPS.map((app) => (
-                <span key={app}>{app}</span>
+                <span key={app.name} className="pay-app-tile">
+                  <img src={app.logo} alt={app.name} />
+                </span>
               ))}
             </div>
           </div>
