@@ -17,6 +17,9 @@ export const BUSINESS = {
   tagline: 'IIHT, Computer Jacquard Textile Designer',
   address: 'A 39/336-5-s Saraiya Haji Katra Varanasi 221001',
   contact: '9140896374',
+  slogan: ['We Design', 'Your Tradition'],
+  upiId: 'wa9605122@axl',
+  upiName: 'Waseem Ahmad',
 };
 
 export const EMPTY_FORM = {

@@ -1,10 +1,13 @@
 import numberToWords from '../utils/numberToWords';
 import { formatGraph } from '../utils/formatGraph';
 import { BUSINESS } from '../constants';
-import paisleyMotif from '../assets/paisley-motif.png';
+import headerSaree from '../assets/header-saree.webp';
+import headerJacquard from '../assets/header-jacquard.jpg';
 import watermarkFlower from '../assets/watermark-flower.png';
+import upiQr from '../assets/upi-qr.png';
 
 const MIN_ROWS = 15;
+const UPI_APPS = ['Google Pay', 'PhonePe', 'Paytm', 'BHIM'];
 
 function formatDate(dateString) {
   const date = dateString ? new Date(`${dateString}T00:00:00`) : new Date();
@@ -15,9 +18,18 @@ function formatDate(dateString) {
   });
 }
 
+function formatMoney(value, fractionDigits = 0) {
+  const n = parseFloat(value);
+  if (Number.isNaN(n)) return '';
+  return n.toLocaleString('en-IN', {
+    minimumFractionDigits: fractionDigits,
+    maximumFractionDigits: 2,
+  });
+}
+
 function WhatsAppIcon() {
   return (
-    <svg className="whatsapp-icon" viewBox="0 0 24 24" aria-label="WhatsApp" role="img">
+    <svg className="contact-icon" viewBox="0 0 24 24" aria-label="WhatsApp" role="img">
       <path
         fill="#25D366"
         d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91c0 1.75.46 3.45 1.32 4.95L2.05 22l5.25-1.38c1.45.79 3.08 1.21 4.74 1.21 5.46 0 9.91-4.45 9.91-9.91C21.95 6.45 17.5 2 12.04 2Z"
@@ -30,6 +42,28 @@ function WhatsAppIcon() {
   );
 }
 
+function PinIcon() {
+  return (
+    <svg className="contact-icon" viewBox="0 0 24 24" aria-hidden="true">
+      <path
+        fill="currentColor"
+        d="M12 2a7 7 0 0 0-7 7c0 5.25 7 13 7 13s7-7.75 7-13a7 7 0 0 0-7-7Zm0 9.5A2.5 2.5 0 1 1 12 6.5a2.5 2.5 0 0 1 0 5Z"
+      />
+    </svg>
+  );
+}
+
+function PhoneIcon() {
+  return (
+    <svg className="contact-icon" viewBox="0 0 24 24" aria-hidden="true">
+      <path
+        fill="currentColor"
+        d="M6.62 10.79a15.05 15.05 0 0 0 6.59 6.59l2.2-2.2a1 1 0 0 1 1.02-.24 11.36 11.36 0 0 0 3.57.57 1 1 0 0 1 1 1V20a1 1 0 0 1-1 1A17 17 0 0 1 3 4a1 1 0 0 1 1-1h3.5a1 1 0 0 1 1 1c0 1.25.2 2.45.57 3.57a1 1 0 0 1-.25 1.02l-2.2 2.2Z"
+      />
+    </svg>
+  );
+}
+
 export default function BillPrint({ items, customer }) {
   const [brandFirst, ...brandRestWords] = BUSINESS.name.split(' ');
   const brandRest = brandRestWords.join(' ');
@@ -37,63 +71,78 @@ export default function BillPrint({ items, customer }) {
   const amountInWords = numberToWords(Math.round(total));
   const blankRows = Math.max(0, MIN_ROWS - items.length);
   const billDate = formatDate(customer?.date);
+  const totalLabel = formatMoney(total, 2);
 
   return (
     <div className="bill-print">
       <img className="bill-watermark" src={watermarkFlower} alt="" aria-hidden="true" />
 
       <div className="bill-content">
-        <div className="brand-band">
-          <div className="motif-badge">
-            <img src={paisleyMotif} alt="" className="letterhead-motif letterhead-motif-left" />
+        {/* Letterhead: brand + contacts on the left, slogan panel on the right */}
+        <header className="bill-header">
+          <div className="bill-header-left">
+            <figure className="header-media">
+              <img src={headerJacquard} alt="" />
+            </figure>
+            <div className="brand-block">
+              <h1 className="brand-name">
+                <span className="brand-name-script">{brandFirst}</span>
+                <span className="brand-name-caps">{brandRest}</span>
+              </h1>
+              <p className="brand-tagline">{BUSINESS.tagline}</p>
+              <div className="brand-contacts">
+                <span>
+                  <PinIcon />
+                  {BUSINESS.address}
+                </span>
+                <span>
+                  <PhoneIcon />
+                  {BUSINESS.contact}
+                  <span className="contact-sep">|</span>
+                  <WhatsAppIcon />
+                  {BUSINESS.contact}
+                </span>
+              </div>
+            </div>
           </div>
-          <div className="letterhead-text">
-            <h1 className="brand-name">
-              <span className="brand-name-script">{brandFirst}</span>
-              <span className="brand-name-caps">{brandRest}</span>
-            </h1>
-            <p className="brand-tagline">{BUSINESS.tagline}</p>
+
+          <div className="bill-header-panel">
+            <img src={headerSaree} alt="" className="panel-photo" aria-hidden="true" />
+            <p className="panel-slogan">
+              {BUSINESS.slogan.map((line) => (
+                <span key={line}>{line}</span>
+              ))}
+            </p>
           </div>
-          <div className="motif-badge">
-            <img src={paisleyMotif} alt="" className="letterhead-motif letterhead-motif-right" />
-          </div>
-        </div>
+        </header>
 
         <div className="deco-trim" aria-hidden="true" />
 
-        <div className="brand-subbar">
-          <span className="brand-contact">
-            {BUSINESS.address} &nbsp;|&nbsp; Contact No : {BUSINESS.contact} &nbsp;|&nbsp;
-            <span className="whatsapp">
-              <WhatsAppIcon />
-              {BUSINESS.contact}
-            </span>
-          </span>
-          <span className="brand-date">Date : {billDate}</span>
-        </div>
+        <div className="bill-info-row">
+          <div className="billed-to-panel">
+            <span className="billed-to-title">Billed To</span>
+            <div className="bill-meta">
+              <div>
+                <span>Name</span>
+                <span>:</span>
+                <span className="value">{customer?.name}</span>
+              </div>
+              <div>
+                <span>Address</span>
+                <span>:</span>
+                <span className="value address">{customer?.address}</span>
+              </div>
+              <div>
+                <span>P.No</span>
+                <span>:</span>
+                <span className="value">{customer?.phone}</span>
+              </div>
+            </div>
+          </div>
 
-        <div className="billed-to-panel">
-          <span className="billed-to-title">Billed To</span>
-          <div className="bill-meta">
-            <div>
-              <span>Name</span>
-              <span>:</span>
-              {customer?.name ? <span className="value line">{customer.name}</span> : <span className="line" />}
-            </div>
-            <div>
-              <span>Address</span>
-              <span>:</span>
-              {customer?.address ? (
-                <span className="value line">{customer.address}</span>
-              ) : (
-                <span className="line" />
-              )}
-            </div>
-            <div>
-              <span>P.No</span>
-              <span>:</span>
-              {customer?.phone ? <span className="value line">{customer.phone}</span> : <span className="line" />}
-            </div>
+          <div className="bill-date-box">
+            <span>Bill Date</span>
+            <strong>{billDate}</strong>
           </div>
         </div>
 
@@ -130,10 +179,10 @@ export default function BillPrint({ items, customer }) {
                 <td>{it.itemPart}</td>
                 <td>{it.chaok}</td>
                 <td>{it.khewa}</td>
-                <td style={{textTransform : 'lowercase'}}>{formatGraph(it)}</td>
+                <td style={{ textTransform: 'lowercase' }}>{formatGraph(it)}</td>
                 <td>{it.rate}</td>
                 <td className="weave-cell">{it.itemType}</td>
-                <td>{it.amount}</td>
+                <td className="amount-cell">{formatMoney(it.amount)}</td>
               </tr>
             ))}
             {Array.from({ length: blankRows }).map((_, i) => (
@@ -154,29 +203,61 @@ export default function BillPrint({ items, customer }) {
 
         <div className="summary-row">
           <div className="bill-words">
-            <strong>Rupees In Word :</strong> {amountInWords}
+            <strong>Rupees In Word :</strong>&nbsp;{amountInWords}
           </div>
           <div className="total-box">
-            <span>Total</span>
-            <strong>₹{total.toFixed(2)}</strong>
+            <span>Grand Total</span>
+            <strong>₹{totalLabel}</strong>
           </div>
         </div>
 
-        <div className="bill-footer">
-          <span>
-            {/* Terms &amp; Condition : */}
+        {/* Payment strip */}
+        <div className="payment-strip">
+          <div className="pay-qr-card">
+            <div className="pay-qr">
+              <img src={upiQr} alt={`UPI QR code for ${BUSINESS.upiId}`} />
+            </div>
+            <div className="pay-qr-label">
+              <strong>Scan</strong>
+              <strong>&amp; Pay</strong>
+              <span>via UPI</span>
+            </div>
+          </div>
 
-          </span>
+          <div className="pay-details">
+            <div>
+              <span>UPI ID</span>
+              <strong>{BUSINESS.upiId}</strong>
+            </div>
+            <div>
+              <span>Name</span>
+              <strong>{BUSINESS.upiName}</strong>
+            </div>
+            <div>
+              <span>Amount</span>
+              <strong className="pay-amount">₹{totalLabel}</strong>
+            </div>
+          </div>
+
+          <div className="pay-apps">
+            <span className="pay-apps-title">Pay with any UPI app</span>
+            <div className="pay-apps-list">
+              {UPI_APPS.map((app) => (
+                <span key={app}>{app}</span>
+              ))}
+            </div>
+          </div>
+
           <div className="signature-box">
-            {/* <span className="signature-name">Waseem Ahmad</span> */}
-            <span className="signature-dots">.....................................</span>
-            <span className="signature-caption">Signature</span>
+            <span className="signature-line" />
+            <span className="signature-caption">Authorised Signature</span>
           </div>
         </div>
 
-        <div className="deco-trim" aria-hidden="true" />
-
-        <p className="bill-thanks">Thank you!</p>
+        <footer className="bill-footer-bar">
+          <span className="bill-thanks">Thank you for your trust!</span>
+          <span>{BUSINESS.name}</span>
+        </footer>
       </div>
     </div>
   );
