@@ -7,11 +7,11 @@ import BillPrint from './components/BillPrint';
 import ConfirmDialog from './components/ConfirmDialog';
 import BottomSheet from './components/BottomSheet';
 import Toast from './components/Toast';
-import SignatureToggle from './components/SignatureToggle';
+import BillSettings from './components/BillSettings';
 import { useItems } from './hooks/useItems';
 import { useCustomer } from './hooks/useCustomer';
 import { useMediaQuery } from './hooks/useMediaQuery';
-import { useSignature } from './hooks/useSignature';
+import { useBillSettings } from './hooks/useBillSettings';
 import { BUSINESS, UNLOCK_KEY } from './constants';
 import './index.css';
 import './print.css';
@@ -43,7 +43,7 @@ function App() {
   const [unlocked, setUnlocked] = useState(() => sessionStorage.getItem(UNLOCK_KEY) === 'true');
   const { items, addItem, updateItem, deleteItem, clearAll } = useItems();
   const { customer, updateCustomer, clearCustomer } = useCustomer();
-  const { showSignature, setShowSignature } = useSignature();
+  const { settings: billSettings, updateSetting } = useBillSettings();
   const [editingItem, setEditingItem] = useState(null);
   const [pendingAction, setPendingAction] = useState(null);
   const isMobile = useMediaQuery('(max-width: 640px)');
@@ -193,7 +193,6 @@ function App() {
           <header className="app-header">
             <h1>Bill Generator</h1>
             <div className="header-actions">
-              <SignatureToggle checked={showSignature} onChange={setShowSignature} />
               <button
                 type="button"
                 className="btn btn-outline"
@@ -223,11 +222,7 @@ function App() {
               collapsible
             />
 
-            <SignatureToggle
-              className="signature-toggle-card"
-              checked={showSignature}
-              onChange={setShowSignature}
-            />
+            <BillSettings settings={billSettings} onChange={updateSetting} collapsible />
 
             <div className="items-section-header">
               <h2>
@@ -261,6 +256,8 @@ function App() {
           <>
             <CustomerForm customer={customer} onChange={updateCustomer} onClear={requestClearCustomer} />
 
+            <BillSettings settings={billSettings} onChange={updateSetting} />
+
             <BillForm
               onAdd={handleAdd}
               onUpdate={handleUpdate}
@@ -274,7 +271,7 @@ function App() {
       </div>
 
       <div className="print-only">
-        <BillPrint items={items} customer={customer} showSignature={showSignature} />
+        <BillPrint items={items} customer={customer} settings={billSettings} />
       </div>
 
       <Toast toast={toast} onDone={hideToast} />

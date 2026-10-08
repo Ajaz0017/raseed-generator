@@ -36,7 +36,7 @@
   width: 100%;
   max-width: 800px;
   margin: 0 auto;
-  font-family: Georgia, 'Times New Roman', serif;
+  font-family: var(--bill-font, Georgia, 'Times New Roman', serif);
   color: #2a2a2a;
   border: 1.5px solid var(--brand-maroon);
   border-radius: 10px;
@@ -51,7 +51,7 @@
   width: 38%;
   height: auto;
   transform: translate(-50%, -50%) rotate(-6deg);
-  opacity: 0.2;
+  /* opacity comes from the Bill Style watermark slider (inline style) */
   pointer-events: none;
   z-index: 0;
 }
@@ -68,45 +68,76 @@
   min-height: 150px;
 }
 
-.bill-header-left {
+/* Side photos: a gradient overlay on each panel's inner edge melts the photo
+   into the header background. An overlay (rather than a fade baked into the
+   image or a CSS mask) stays seamless however cover-cropping trims the photo,
+   and prints reliably. */
+.bill-header-media-panel,
+.bill-header-panel {
+  position: relative;
+  width: 25%;
+  flex-shrink: 0;
+  overflow: hidden;
+}
+
+.bill-header-media-panel::after,
+.bill-header-panel::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 55%;
+  pointer-events: none;
+}
+
+.bill-header-media-panel::after {
+  right: 0;
+  background: linear-gradient(
+    to right,
+    rgba(255, 253, 250, 0) 0%,
+    rgba(255, 253, 250, 0.35) 30%,
+    rgba(255, 253, 250, 0.8) 60%,
+    #fffdfa 85%
+  );
+}
+
+.bill-header-panel::after {
+  left: 0;
+  background: linear-gradient(
+    to left,
+    rgba(255, 253, 250, 0) 0%,
+    rgba(255, 253, 250, 0.35) 30%,
+    rgba(255, 253, 250, 0.8) 60%,
+    #fffdfa 85%
+  );
+}
+
+/* Stop the photo short of the panel edge so its border sits under the
+   overlay's solid end; otherwise print/PDF rasterising shows a hairline seam. */
+.media-photo {
+  position: absolute;
+  inset: 0 8px 0 0;
+  width: calc(100% - 8px);
+  height: 100%;
+  object-fit: cover;
+  object-position: center 30%;
+}
+
+.bill-header-center {
   flex: 1;
   display: flex;
   align-items: center;
-  gap: 16px;
-  padding: 14px 0 14px 20px;
+  justify-content: center;
+  padding: 14px 8px;
   min-width: 0;
-}
-
-/* Jacquard photo as a framed portrait card with an offset gold outline */
-.header-media {
-  position: relative;
-  flex-shrink: 0;
-  width: 104px;
-  height: 122px;
-  margin: 0 6px 0 0;
-}
-
-.header-media::before {
-  content: '';
-  position: absolute;
-  inset: 6px -6px -6px 6px;
-  border: 1.5px solid var(--brand-gold);
-  border-radius: 12px;
-}
-
-.header-media img {
-  position: relative;
-  display: block;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  border-radius: 12px;
-  border-bottom: 4px solid var(--brand-maroon);
-  box-shadow: 0 4px 10px rgba(92, 14, 38, 0.25);
 }
 
 .brand-block {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
   min-width: 0;
+  text-align: center;
 }
 
 .brand-name {
@@ -119,18 +150,18 @@
 
 .brand-name-script {
   font-family: 'Great Vibes', 'Playfair Display', cursive;
-  font-size: 56px;
+  font-size: 70px;
   font-weight: 400;
   color: var(--brand-maroon);
 }
 
 .brand-name-caps {
-  margin-top: -2px;
-  padding-left: 8px; /* balances trailing letter-spacing */
+  margin-top: -4px;
+  padding-left: 10px; /* balances trailing letter-spacing */
   font-family: 'Montserrat', 'Segoe UI', sans-serif;
-  font-size: 15px;
+  font-size: 19px;
   font-weight: 700;
-  letter-spacing: 8px;
+  letter-spacing: 10px;
   text-transform: uppercase;
   color: var(--brand-maroon-dark);
 }
@@ -138,9 +169,10 @@
 .brand-tagline {
   margin: 8px 0 8px;
   font-family: 'Montserrat', 'Segoe UI', sans-serif;
-  font-size: 10px;
+  font-size: 10.5px;
   font-weight: 700;
   letter-spacing: 1.4px;
+  white-space: nowrap;
   text-transform: uppercase;
   color: var(--brand-gold);
 }
@@ -148,8 +180,9 @@
 .brand-contacts {
   display: flex;
   flex-direction: column;
+  align-items: center;
   gap: 3px;
-  font-size: 11.5px;
+  font-size: 12px;
   color: #4a4040;
 }
 
@@ -171,47 +204,14 @@
   color: #b9a9a0;
 }
 
-/* Right-hand slogan panel: saree photo whose faded left edge melts into the
-   header background. */
-.bill-header-panel {
-  position: relative;
-  width: 38%;
-  flex-shrink: 0;
-  display: flex;
-  align-items: flex-end;
-  justify-content: flex-end;
-  padding: 14px 18px;
-  overflow: hidden;
-}
-
 .panel-photo {
   position: absolute;
-  inset: 0;
-  width: 100%;
+  inset: 0 0 0 8px;
+  width: calc(100% - 8px);
   height: 100%;
   object-fit: cover;
-  object-position: right 40%;
-}
-
-.panel-slogan {
-  position: relative;
-  z-index: 2;
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  margin: 0;
-  padding: 6px 12px;
-  border-radius: 4px;
-  background: rgba(60, 8, 24, 0.55);
-  font-family: 'Playfair Display', Georgia, serif;
-  font-style: italic;
-  font-size: 19px;
-  line-height: 1.2;
-  color: #fff;
-}
-
-.panel-slogan span:last-child {
-  color: #f7e3a1;
+  /* Skip the image's own white left margin; the overlay does the fade. */
+  object-position: 85% 40%;
 }
 
 /* Decorative zigzag trim */
@@ -335,8 +335,8 @@
 .bill-table th,
 .bill-table td {
   border: 1px solid #e0cfa6;
-  padding: 6px 5px;
-  font-size: 12.5px;
+  padding: 7px 6px;
+  font-size: 14px;
   text-align: center;
   text-transform: capitalize;
   white-space: normal;
@@ -352,10 +352,10 @@
   border-right-color: rgba(255, 255, 255, 0.45);
   color: #fff;
   font-family: 'Montserrat', 'Segoe UI', sans-serif;
-  font-size: 10.5px;
+  font-size: 11.5px;
   font-weight: 600;
   letter-spacing: 0.3px;
-  padding: 7px 4px;
+  padding: 8px 4px;
 }
 
 /* Outer edges stay maroon; only inner column separators are light. */
@@ -369,7 +369,7 @@
 
 /* Keep "Pick n Pick" as typed (capitalize would turn it into "Pick N Pick"). */
 .bill-table td.weave-cell {
-  font-size: 11px;
+  font-size: 12.5px;
   letter-spacing: -0.1px;
   text-transform: none;
 }
@@ -390,7 +390,7 @@
 }
 
 .blank-row td {
-  height: 25px;
+  height: 33px;
 }
 
 /* ---------- Totals ---------- */
@@ -455,15 +455,16 @@
   display: flex;
   align-items: center;
   gap: 10px;
-  padding: 10px 14px 10px 10px;
+  padding: 8px 12px 8px 8px;
   background: linear-gradient(135deg, var(--brand-maroon), var(--brand-maroon-dark));
   color: #fff;
 }
 
+/* Sized to match the height of the four-row details column beside it. */
 .pay-qr {
-  width: 100px;
-  height: 100px;
-  padding: 4px;
+  width: 114px;
+  height: 114px;
+  padding: 5px;
   border-radius: 6px;
   background: #fff;
 }
@@ -478,6 +479,7 @@
   display: flex;
   flex-direction: column;
   line-height: 1.15;
+  white-space: nowrap;
 }
 
 .pay-qr-label strong {
@@ -495,14 +497,15 @@
   display: flex;
   flex-direction: column;
   justify-content: center;
-  gap: 5px;
-  padding: 8px 16px;
+  gap: 3px;
+  padding: 8px 12px;
   border-right: 1px dashed #e3d3b8;
 }
 
 .pay-details > div {
   display: flex;
   flex-direction: column;
+  white-space: nowrap;
 }
 
 .pay-details span {
@@ -519,6 +522,12 @@
   color: #2a2a2a;
 }
 
+.pay-details .pay-mobile {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
 .pay-details .pay-amount {
   font-size: 14px;
   color: var(--brand-maroon);
@@ -530,7 +539,8 @@
   flex-direction: column;
   justify-content: center;
   gap: 7px;
-  padding: 8px 14px;
+  min-width: 0;
+  padding: 8px 12px;
   border-right: 1px dashed #e3d3b8;
 }
 
@@ -554,9 +564,9 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 78px;
+  width: 70px;
   height: 26px;
-  padding: 4px 8px;
+  padding: 4px 7px;
   border: 1px solid #e3d3b8;
   border-radius: 6px;
   background: #fff;
@@ -570,13 +580,13 @@
 }
 
 .signature-box {
-  width: 150px;
+  width: 140px;
   flex-shrink: 0;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: flex-end;
-  padding: 10px 14px 12px;
+  padding: 10px 10px 12px;
 }
 
 .signature-img {

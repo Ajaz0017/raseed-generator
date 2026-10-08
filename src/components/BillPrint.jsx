@@ -1,6 +1,6 @@
 import numberToWords from '../utils/numberToWords';
 import { formatGraph } from '../utils/formatGraph';
-import { BUSINESS } from '../constants';
+import { BILL_FONTS, BUSINESS } from '../constants';
 import headerSaree from '../assets/header-saree.webp';
 import headerJacquard from '../assets/header-jacquard.jpg';
 import watermarkKairy from '../assets/paisley-motif.png';
@@ -16,7 +16,9 @@ const signatureImg = Object.values(
   import.meta.glob('../assets/signature.png', { eager: true, import: 'default' })
 )[0];
 
-const MIN_ROWS = 15;
+// Blank rows pad the table so short bills still look complete; kept low enough
+// that the whole bill fits on one A4 page at readable font sizes.
+const MIN_ROWS = 12;
 const UPI_APPS = [
   { name: 'Google Pay', logo: googlePayLogo },
   { name: 'PhonePe', logo: phonePeLogo },
@@ -119,7 +121,9 @@ function PhoneIcon() {
   );
 }
 
-export default function BillPrint({ items, customer, showSignature }) {
+export default function BillPrint({ items, customer, settings }) {
+  const { showSignature, watermarkOpacity, fontId } = settings;
+  const billFont = (BILL_FONTS.find((f) => f.id === fontId) ?? BILL_FONTS[0]).stack;
   const [brandFirst, ...brandRestWords] = BUSINESS.name.split(' ');
   const brandRest = brandRestWords.join(' ');
   const total = items.reduce((sum, it) => sum + (parseFloat(it.amount) || 0), 0);
@@ -134,16 +138,25 @@ export default function BillPrint({ items, customer, showSignature }) {
   const totalWidth = columns.reduce((sum, col) => sum + col.width, 0);
 
   return (
-    <div className="bill-print">
-      <img className="bill-watermark" src={watermarkKairy} alt="" aria-hidden="true" />
+    <div className="bill-print" style={{ '--bill-font': billFont }}>
+      {watermarkOpacity > 0 && (
+        <img
+          className="bill-watermark"
+          src={watermarkKairy}
+          alt=""
+          aria-hidden="true"
+          style={{ opacity: watermarkOpacity / 100 }}
+        />
+      )}
 
       <div className="bill-content">
-        {/* Letterhead: brand + contacts on the left, slogan panel on the right */}
+        {/* Letterhead: jacquard photo | centred brand + contacts | saree photo */}
         <header className="bill-header">
-          <div className="bill-header-left">
-            <figure className="header-media">
-              <img src={headerJacquard} alt="" />
-            </figure>
+          <div className="bill-header-media-panel" aria-hidden="true">
+            <img src={headerJacquard} alt="" className="media-photo" />
+          </div>
+
+          <div className="bill-header-center">
             <div className="brand-block">
               <h1 className="brand-name">
                 <span className="brand-name-script">{brandFirst}</span>
@@ -168,11 +181,6 @@ export default function BillPrint({ items, customer, showSignature }) {
 
           <div className="bill-header-panel">
             <img src={headerSaree} alt="" className="panel-photo" aria-hidden="true" />
-            <p className="panel-slogan">
-              {BUSINESS.slogan.map((line) => (
-                <span key={line}>{line}</span>
-              ))}
-            </p>
           </div>
         </header>
 
@@ -272,6 +280,12 @@ export default function BillPrint({ items, customer, showSignature }) {
             <div>
               <span>UPI ID</span>
               <strong>{BUSINESS.upiId}</strong>
+            </div>
+            <div>
+              <span>Pay on Mobile No</span>
+              <strong className="pay-mobile">
+                {BUSINESS.contact}
+              </strong>
             </div>
             <div>
               <span>Name</span>
